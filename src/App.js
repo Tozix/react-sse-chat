@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import Chat from "./Chat";
-import ChatInitiator from "./ChatInitiator"; // Новый компонент для инициализации чата
 import ChatList from "./ChatList";
 import Login from "./Login";
+
 const apiBaseUrl = "http://localhost:3000/api";
 
 const App = () => {
@@ -44,25 +44,15 @@ const App = () => {
   }
 
   return (
-    <div className="App">
-      {user.role === "CURATOR" ? (
-        <>
-          <ChatList token={token} onSelectChat={setSelectedChatId} />
-          {selectedChatId && (
-            <Chat token={token} chatSessionId={selectedChatId} user={user} />
-          )}
-        </>
-      ) : (
-        <>
-          <ChatInitiator
-            token={token}
-            onChatSessionIdReady={setSelectedChatId}
-          />
-          {selectedChatId && (
-            <Chat token={token} chatSessionId={selectedChatId} user={user} />
-          )}
-        </>
-      )}
+    <div className="App" style={{ display: "flex", flexDirection: "row" }}>
+      <div style={{ flex: 1 }}>
+        <ChatList token={token} user={user} onSelectChat={setSelectedChatId} />
+      </div>
+      <div style={{ flex: 3 }}>
+        {selectedChatId && (
+          <Chat token={token} chatSessionId={selectedChatId} user={user} />
+        )}
+      </div>
     </div>
   );
 };
