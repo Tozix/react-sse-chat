@@ -46,7 +46,12 @@ const App = () => {
   return (
     <div className="App" style={{ display: "flex", flexDirection: "row" }}>
       <div style={{ flex: 1 }}>
-        <ChatList token={token} user={user} onSelectChat={setSelectedChatId} />
+        <ChatList
+          token={token}
+          user={user}
+          onSelectChat={setSelectedChatId}
+          selectedChatId={selectedChatId}
+        />
       </div>
       <div style={{ flex: 3 }}>
         {selectedChatId && (

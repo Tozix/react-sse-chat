@@ -5,7 +5,7 @@ import ChatCreator from "./ChatCreator";
 
 const apiBaseUrl = "http://localhost:3000/api";
 
-const ChatList = ({ token, user, onSelectChat }) => {
+const ChatList = ({ token, user, onSelectChat, selectedChatId }) => {
   const [chats, setChats] = useState([]);
   const [availableChats, setAvailableChats] = useState([]);
 
@@ -80,9 +80,13 @@ const ChatList = ({ token, user, onSelectChat }) => {
         />
       )}
       <h2>Активные чаты</h2>
-      <ul>
+      <ul className="chat-list">
         {chats.map((chat) => (
-          <li key={chat.id}>
+          <li
+            key={chat.id}
+            onClick={() => onSelectChat(chat.id)}
+            className={selectedChatId === chat.id ? "active" : ""}
+          >
             Чат с{" "}
             {user.role === "CURATOR"
               ? chat.user.email
@@ -90,14 +94,23 @@ const ChatList = ({ token, user, onSelectChat }) => {
               ? chat.curator.email
               : "Куратор не назначен"}{" "}
             - сообщений: {chat.messageCount}
-            <button onClick={() => onSelectChat(chat.id)}>Открыть чат</button>
+            {user.role === "CURATOR" && chat.curatorId == null && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  joinChat(chat.id);
+                }}
+              >
+                Присоединиться
+              </button>
+            )}
           </li>
         ))}
       </ul>
-      {user.role === "CURATOR" && (
+      {user.role === "CURATOR" && availableChats.length > 0 && (
         <>
           <h2>Доступные чаты</h2>
-          <ul>
+          <ul className="chat-list">
             {availableChats.map((chat) => (
               <li key={chat.id}>
                 Чат с {chat.user.email}
