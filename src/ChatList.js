@@ -20,7 +20,6 @@ const ChatList = ({ token, user, onSelectChat }) => {
           response.data.filter((chat) => chat.curatorId == null)
         );
       } else {
-        // Фильтрация для пользователя, чтобы показывать только его чаты
         setChats(response.data.filter((chat) => chat.userId === user.id));
       }
     } catch (error) {
@@ -37,8 +36,8 @@ const ChatList = ({ token, user, onSelectChat }) => {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      fetchChats(); // Обновляем список чатов после присоединения
-      onSelectChat(chatId); // Автоматически выбираем присоединенный чат
+      fetchChats();
+      onSelectChat(chatId);
     } catch (error) {
       console.error("Ошибка при присоединении к чату:", error);
     }
@@ -52,21 +51,14 @@ const ChatList = ({ token, user, onSelectChat }) => {
       method: "GET",
       headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
-      // onmessage: () => fetchChats(), // Перезагружаем список чатов при любом обновлении
       onmessage(event) {
         try {
           const update = JSON.parse(event.data);
-          // Обновляем список чатов при появлении нового сообщения
-          if (update.type === "newMessage") {
-            fetchChats();
-          }
-          if (update.type === "chatCurated") {
-            fetchChats();
-          }
-          if (update.type === "newCuratedChat") {
-            fetchChats();
-          }
-          if (update.type === "newChat") {
+          if (
+            ["newMessage", "chatCurated", "newCuratedChat", "newChat"].includes(
+              update.type
+            )
+          ) {
             fetchChats();
           }
         } catch (error) {
@@ -75,7 +67,7 @@ const ChatList = ({ token, user, onSelectChat }) => {
       },
     });
 
-    return () => controller.abort(); // Отмена подписки при размонтировании компонента
+    return () => controller.abort();
   }, [fetchChats, token, user.id]);
 
   return (
@@ -91,8 +83,13 @@ const ChatList = ({ token, user, onSelectChat }) => {
       <ul>
         {chats.map((chat) => (
           <li key={chat.id}>
-            Чат с {chat.curator ? chat.curator.email : "Куратор не назначен"} -
-            сообщений: {chat.messageCount}
+            Чат с{" "}
+            {user.role === "CURATOR"
+              ? chat.user.email
+              : chat.curator
+              ? chat.curator.email
+              : "Куратор не назначен"}{" "}
+            - сообщений: {chat.messageCount}
             <button onClick={() => onSelectChat(chat.id)}>Открыть чат</button>
           </li>
         ))}
